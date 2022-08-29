@@ -4,7 +4,11 @@ from tkinter import ttk
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from tkinter import filedialog
 from tkinter.filedialog import *
+
+import cv2
+import keyboard as keyboard
 import numpy as np
+import serial
 import xlwt
 from xlsxwriter import Workbook
 from matplotlib import pyplot as plt
@@ -13,38 +17,65 @@ import pandas as pd
 import io
 import time
 from scipy.signal import find_peaks
+# import pyserial
+from serial.tools import list_ports
+
+comlist = list_ports.comports()
+connectedPorts = []
+chosen_port = "COM1"
+lastOpenedPort = ""
+ClosePort = 0
+
+ser = serial.Serial(chosen_port, 115200, timeout=1, parity=serial.PARITY_NONE, stopbits=1)
+
+for element in comlist:
+    connectedPorts.append(element.device)
+print("Connected COM ports: " + str(connectedPorts))
+
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Bye, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
+
 def selectOutputDir():
     OutputDir = filedialog.askdirectory(parent=window)
-    outputFile = OutputDir+'/outputCSV.csv'
+    outputFile = OutputDir + '/outputCSV.csv'
     print(outputFile)
     text0.insert(INSERT, outputFile)
-    # return outputFile
-    # outputFile = 'C:/Users/Stasy/Desktop/output2FLASH.txt'
+
 
 def connect2Arduino():
-    OutputDir = filedialog.askdirectory(parent=window)
-    outputFile = OutputDir+'/outputCSV.csv'
-    print(outputFile)
-    text0.insert(INSERT, outputFile)
-    # return outputFile
-    # outputFile = 'C:/Users/Stasy/Desktop/output2FLASH.txt'
+    global chosen_port, lastOpenedPort
+    chosen_port = combobox0.get()
+    if chosen_port == "x":
+        chosen_port = lastOpenedPort
+        # combobox0.select_clear
+    ser = serial.Serial(chosen_port, 115200, timeout=1, parity=serial.PARITY_NONE, stopbits=1)
+    if ser.isOpen():
+        lastOpenedPort = chosen_port
+        print("port is opened")
+    while True:
+        data = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        print(data)
+        if keyboard.is_pressed("x"):
+            break
+            # ser.close()
+    close_COM_port()
+    return
 
 def Record():
     OutputDir = filedialog.askdirectory(parent=window)
-    outputFile = OutputDir+'/outputCSV.csv'
+    outputFile = OutputDir + '/outputCSV.csv'
     print(outputFile)
     text0.insert(INSERT, outputFile)
     # return outputFile
     # outputFile = 'C:/Users/Stasy/Desktop/output2FLASH.txt'
 
+
 def saveCSV():
     OutputDir = filedialog.askdirectory(parent=window)
-    outputFile = OutputDir+'/outputCSV.csv'
+    outputFile = OutputDir + '/outputCSV.csv'
     print(outputFile)
     text0.insert(INSERT, outputFile)
     # return outputFile
@@ -52,18 +83,27 @@ def saveCSV():
 
 
 def startMeasurenent():
-    outputFile = format(text0.get("1.0", 'end-1c'))
-
-    # Matplotlib graph surface
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    f = open(outputFile, 'w', newline='')
-    # writer = csv.writer(f)
-
-    while (True):
-
-
+    global chosen_port, lastOpenedPort
+    chosen_port = combobox0.get()
+    if chosen_port == "x":
+        chosen_port = lastOpenedPort
+        # combobox0.select_clear
+    ser = serial.Serial(chosen_port, 115200, timeout=1, parity=serial.PARITY_NONE, stopbits=1)
+    if ser.isOpen():
+        lastOpenedPort = chosen_port
+        print("port is opened")
+    while True:
+        data = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        print(data)
+        # fig.canvas.draw()
+        # plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        # plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        # plt.cla()
+        if keyboard.is_pressed("x"):
+            break
+            # ser.close()
+    close_COM_port()
+    return
 
         # writer.writerow(colorRatio2log)
 
@@ -75,8 +115,16 @@ def startMeasurenent():
         plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         plt.cla()
 
-    f.close()
-    text1.insert(INSERT, 'Готово')
+    # f.close()
+    # text1.insert(INSERT, 'Готово')
+
+
+def close_COM_port():
+    ser.close()
+    global ClosePort
+    ClosePort = 1
+    if (not (ser.isOpen())):
+        print("port is closed")
 
 
 # Press the green button in the gutter to run the script.
@@ -118,9 +166,13 @@ if __name__ == '__main__':
     btn3.grid(column=1, row=3, sticky=W)
     btn4 = Button(window, text="Сохранить", command=saveCSV)
     btn4.grid(column=1, row=4, sticky=W)
+    btn5 = Button(window, text="Закрыть порт", command=close_COM_port)
+    btn5.grid(column=3, row=1)
 
-    combobox0 = ttk.Combobox(window, values=["January", "February", "March", "April"])
+    # combobox = ttk.Combobox(window, values=connectedPorts)
+    combobox0 = ttk.Combobox(window, values=connectedPorts)
     combobox0.grid(column=1, row=1)
+    # combobox0.current(1)
 
     window.mainloop()
     print_hi('PyCharm')
