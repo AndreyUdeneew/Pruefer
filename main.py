@@ -57,7 +57,7 @@ def connect2Arduino():
         print("port is opened")
     while True:
         data = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        print(data)
+        # print(data)
         if keyboard.is_pressed("x"):
             break
             # ser.close()
@@ -92,9 +92,19 @@ def startMeasurenent():
     if ser.isOpen():
         lastOpenedPort = chosen_port
         print("port is opened")
+    data = []
     while True:
-        data = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        print(data)
+        line = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        string = line.decode()  # convert the byte string to a unicode string
+        # print(data)
+        num = float(string)
+
+        plt.xlabel('Time')
+        plt.ylabel('Potentiometer Reading')
+        plt.title('Potentiometer Reading vs. Time')
+        data.append(num)
+        plt.plot(data)
+        plt.show()
         # fig.canvas.draw()
         # plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
         # plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
@@ -104,20 +114,6 @@ def startMeasurenent():
             # ser.close()
     close_COM_port()
     return
-
-        # writer.writerow(colorRatio2log)
-
-        # Draw matplotlib graph to numpy array
-        # ax.plot(heartbeat_times, heartbeat_values)
-        # ax.plot(heartbeat_times, colorRatio)
-        fig.canvas.draw()
-        plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        plt.cla()
-
-    # f.close()
-    # text1.insert(INSERT, 'Готово')
-
 
 def close_COM_port():
     ser.close()
