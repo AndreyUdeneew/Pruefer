@@ -9,6 +9,8 @@ import cv2
 import keyboard as keyboard
 import numpy as np
 import serial
+from matplotlib import pyplot as plt
+import csv
 import xlwt
 from xlsxwriter import Workbook
 from matplotlib import pyplot as plt
@@ -43,6 +45,7 @@ def selectOutputDir():
     outputFile = OutputDir + '/outputCSV.csv'
     print(outputFile)
     text0.insert(INSERT, outputFile)
+    # print(text0.get(Text))
 
 
 def connect2Arduino():
@@ -92,21 +95,36 @@ def startMeasurenent():
     if ser.isOpen():
         lastOpenedPort = chosen_port
         print("port is opened")
-    data = []
+    data1 = []
+    data2 = []
     plt.xlabel('Time')
     plt.ylabel('Potentiometer Reading')
     plt.title('Potentiometer Reading vs. Time')
+    outputFile = format(text0.get("1.0", 'end-1c'))
+    f = open(outputFile, 'w', newline='')
+    writer = csv.writer(f, delimiter=',')
     while True:
-        line = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        string = line.decode()  # convert the byte string to a unicode string
-        if(string == ''):
-            string = 0
+        line1 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        line2 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        string1 = line1.decode()  # convert the byte string to a unicode string
+        string2 = line2.decode()  # convert the byte string to a unicode string
+        if(string1 == ''):
+            string1 = 0
+        if (string2 == ''):
+            string2 = 0
 
-        num = float(string)
-        print(num)
-        data.append(num)
-        plt.plot(data)
+        num1 = float(string1)
+        num2 = float(string2)
+        print(num1)
+        print(num2)
+        data1.append(num1)
+        data2.append(num2)
+        plt.plot(data1)
+        plt.plot(data2)
+
         plt.show()
+        writer.writerow([num1, num2])
+        # writer.writerow([num2])
         plt.pause(0.01)  # pause
         # fig.canvas.draw()
 
@@ -115,6 +133,9 @@ def startMeasurenent():
             break
             # ser.close()
     close_COM_port()
+    # for value in data:
+    # writer.writerow([num])
+    f.close()
     return
 
 def close_COM_port():
@@ -146,7 +167,7 @@ if __name__ == '__main__':
     lbl5 = Label(window, text="T, Celsius")
     lbl5.grid(column=1, row=6)
 
-    text0 = Text(width=100, height=1)
+    text0 = Text(width=10, height=1)
     text0.grid(column=2, row=0)
     text1 = Text(width=20, height=1)
     text1.grid(column=2, row=3, sticky=W)
