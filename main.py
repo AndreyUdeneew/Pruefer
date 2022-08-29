@@ -93,21 +93,23 @@ def startMeasurenent():
         lastOpenedPort = chosen_port
         print("port is opened")
     data = []
+    plt.xlabel('Time')
+    plt.ylabel('Potentiometer Reading')
+    plt.title('Potentiometer Reading vs. Time')
     while True:
         line = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
         string = line.decode()  # convert the byte string to a unicode string
-        # print(data)
-        num = float(string)
+        if(string == ''):
+            string = 0
 
-        plt.xlabel('Time')
-        plt.ylabel('Potentiometer Reading')
-        plt.title('Potentiometer Reading vs. Time')
+        num = float(string)
+        print(num)
         data.append(num)
         plt.plot(data)
         plt.show()
+        plt.pause(0.01)  # pause
         # fig.canvas.draw()
-        # plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        # plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
         # plt.cla()
         if keyboard.is_pressed("x"):
             break
