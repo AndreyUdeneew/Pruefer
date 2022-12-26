@@ -54,7 +54,7 @@ def connect2Arduino():
     if chosen_port == "x":
         chosen_port = lastOpenedPort
         # combobox0.select_clear
-    ser = serial.Serial(chosen_port, 9600, timeout=1, parity=serial.PARITY_NONE, stopbits=1)
+    ser = serial.Serial(chosen_port, 115200, timeout=1, parity=serial.PARITY_NONE, stopbits=1)
     if ser.isOpen():
         lastOpenedPort = chosen_port
         print("port is opened")
@@ -105,39 +105,77 @@ def startMeasurenent():
     f = open(outputFile, 'w', newline='')
     writer = csv.writer(f, delimiter=',')
     while True:
-        # data = ser.read() for bytes as hex numbers reading
-        print(data)
-        string = data.decode()
-        # num = float(string)
-        # data.append(string)
-        plt.plot(data)
-        # line1 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        # line2 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        # string1 = line1.decode()  # convert the byte string to a unicode string
-        # string2 = line2.decode()  # convert the byte string to a unicode string
-        # if(string1 == ''):
-        #     string1 = 0
-        # if (string2 == ''):
-        #     string2 = 0
-        #
-        # # num1 = float(string1)
-        # # num2 = float(string2)
-        # print(num1)
-        # print(num2)
-        # data1.append(num1)
-        # data2.append(num2)
-        # plt.plot(data1)
-        # plt.plot(data2)
+        line1 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        line2 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        string1 = line1.decode()  # convert the byte string to a unicode string
+        string2 = line2.decode()  # convert the byte string to a unicode string
+        if(string1 == ''):
+            string1 = 0
+        if (string2 == ''):
+            string2 = 0
 
-        plt.show()
-        # writer.writerow([num1, num2])
+        num1 = float(string1)
+        num2 = float(string2)
+        print(num1)
+        print(num2)
+        data1.append(num1)
+        data2.append(num2)
+        plt.plot(data1)
+        plt.plot(data2)
+
+        plt.draw()
+        writer.writerow([num1, num2])
         # writer.writerow([num2])
         plt.pause(0.01)  # pause
         # fig.canvas.draw()
 
         # plt.cla()
-        # if keyboard.is_pressed("x"):
-        #     break
+        if keyboard.is_pressed("x"):
+            break
+            # ser.close()
+    close_COM_port()
+    # for value in data:
+    # writer.writerow([num])
+    f.close()
+    return
+
+def startMeasurenentHex():
+    global chosen_port, lastOpenedPort
+    chosen_port = combobox0.get()
+    if chosen_port == "x":
+        chosen_port = lastOpenedPort
+        # combobox0.select_clear
+    ser = serial.Serial(chosen_port, 115200, timeout=1, parity=serial.PARITY_NONE, stopbits=1)
+    if ser.isOpen():
+        lastOpenedPort = chosen_port
+        print("port is opened")
+    data1 = []
+    plt.xlabel('Time')
+    plt.ylabel('Potentiometer Reading')
+    plt.title('Potentiometer Reading vs. Time')
+    # outputFile = format(text0.get("1.0", 'end-1c'))
+    outputFile = 'C:/Users/user/Desktop/outputCSV.csv'
+    f = open(outputFile, 'w', newline='')
+    writer = csv.writer(f, delimiter=',')
+    while True:
+        line1 = ser.read(size=1)  # the last bit gets rid of the new-line chars
+        # string1 = line1.decode()  # convert the byte string to a unicode string
+        # if(string1 == ''):
+        #     string1 = 0
+
+        # num1 = int(string1)
+        print(line1)
+        data1.append(line1)
+        plt.plot(data1)
+        plt.draw()
+        writer.writerow([line1])
+        # writer.writerow([num2])
+        plt.pause(0.01)  # pause
+        # fig.canvas.draw()
+
+        # plt.cla()
+        if keyboard.is_pressed("x"):
+            break
             # ser.close()
     close_COM_port()
     # for value in data:
@@ -188,6 +226,8 @@ if __name__ == '__main__':
     # btn1.grid(column=2, row=1, sticky=W)
     btn2 = Button(window, text="Измерение", command=startMeasurenent)
     btn2.grid(column=1, row=1, sticky=W)
+    btn6 = Button(window, text="Измерение Hex", command=startMeasurenentHex)
+    btn6.grid(column=1, row=2, sticky=W)
     # btn3 = Button(window, text="Запись", command=Record)
     # btn3.grid(column=1, row=3, sticky=W)
     # btn4 = Button(window, text="Сохранить", command=saveCSV)
