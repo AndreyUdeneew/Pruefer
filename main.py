@@ -158,13 +158,15 @@ def startMeasurenentHex():
     f = open(outputFile, 'w', newline='')
     writer = csv.writer(f, delimiter=',')
     while True:
-        line1 = ser.read(size=1)  # the last bit gets rid of the new-line chars
+        line1 = ser.read(size=2)  # the last bit gets rid of the new-line chars
+        line1 = int.from_bytes(line1, byteorder='big', signed=False)
         # string1 = line1.decode()  # convert the byte string to a unicode string
         # if(string1 == ''):
         #     string1 = 0
 
         # num1 = int(string1)
         print(line1)
+        print(type(line1))
         data1.append(line1)
         plt.plot(data1)
         plt.draw()
