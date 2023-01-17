@@ -95,12 +95,12 @@ def startMeasurenent():
     if ser.isOpen():
         lastOpenedPort = chosen_port
         print("port is opened")
-    data1 = []
-    data2 = []
-    plt.xlabel('Time')
-    plt.ylabel('Potentiometer Reading')
-    plt.title('Potentiometer Reading vs. Time')
-    # outputFile = format(text0.get("1.0", 'end-1c'))
+    data1 = [0]*50
+    data2 = [0]*50
+    times = [time.time()] * 50
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
     outputFile = 'C:/Users/user/Desktop/outputCSV.csv'
     f = open(outputFile, 'w', newline='')
     writer = csv.writer(f, delimiter=',')
@@ -118,25 +118,27 @@ def startMeasurenent():
         num2 = float(string2)
         print(num1)
         print(num2)
-        data1.append(num1)
-        data2.append(num2)
-        plt.plot(data1)
-        plt.plot(data2)
 
-        plt.draw()
+        data1 = data1[1:] + [num1]
+        data2 = data2[1:] + [num2]
+        times = times[1:] + [time.time()]
+
+        ax.plot(times, data2, times, data1)
+        fig.canvas.draw()
+        plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        plt.cla()
+
+        cv2.imshow('Graph1', plot_img_np)
+
         writer.writerow([num1, num2])
-        # writer.writerow([num2])
-        plt.pause(0.01)  # pause
-        # fig.canvas.draw()
 
-        # plt.cla()
-        if keyboard.is_pressed("x"):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
             # ser.close()
     close_COM_port()
-    # for value in data:
-    # writer.writerow([num])
     f.close()
+    cv2.destroyAllWindows()
     return
 
 def startMeasurenentHex():
