@@ -87,6 +87,9 @@ def saveCSV():
 
 def startMeasurenent():
     global chosen_port, lastOpenedPort
+
+    # statusClear()
+    # text3.insert(INSERT, "recorded")
     chosen_port = combobox0.get()
     if chosen_port == "x":
         chosen_port = lastOpenedPort
@@ -95,16 +98,22 @@ def startMeasurenent():
     if ser.isOpen():
         lastOpenedPort = chosen_port
         print("port is opened")
-    data1 = [0]*50
-    data2 = [0]*50
-    times = [time.time()] * 50
+    data1 = []
+    data2 = []
+    # times = [time.time()] * 50
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212)
 
     outputFile = 'C:/Users/user/Desktop/outputCSV.csv'
     f = open(outputFile, 'w', newline='')
     writer = csv.writer(f, delimiter=',')
-    while True:
+    i=0
+    for i in range(5000):
+
+    # while True:
+        i+=1
+        print(i)
         line1 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
         line2 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
         string1 = line1.decode()  # convert the byte string to a unicode string
@@ -116,33 +125,56 @@ def startMeasurenent():
 
         num1 = float(string1)
         num2 = float(string2)
-        print(num1)
-        print(num2)
 
-        data1 = data1[1:] + [num1]
-        data2 = data2[1:] + [num2]
-        times = times[1:] + [time.time()]
+        # print(num1)
+        # print(num2)
+        data1.append(num1)
+        data2.append(num2)
+        # writer.writerow([num1, num2])
 
-        ax.plot(times, data2, times, data1)
-        fig.canvas.draw()
-        plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        plt.cla()
+        # if i==10:
+        #     i=0
+        #     data1 = data1[1:] + [num1]
+        #     data2 = data2[1:] + [num2]
+        #     times = times[1:] + [time.time()]
 
-        cv2.imshow('Graph1', plot_img_np)
+            # ax.plot(times, data2, times, data1)
+            # # ax.plot(times, data1)
+            # fig.canvas.draw()
+            # plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+            # plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            # plt.cla()
+            #
+            # cv2.imshow('Graph1', plot_img_np)
 
-        writer.writerow([num1, num2])
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
             # ser.close()
     close_COM_port()
+    writer.writerow(data1)
+    writer.writerow(data2)
     f.close()
-    cv2.destroyAllWindows()
+    # text3.insert(INSERT, "recorded")
+    ax1.plot(data1)
+    ax2.plot(data2)
+    # plt.plot(data1)
+    plt.show()
+    # plt.cla()
+    # plt.show(data1)
+    # cv2.destroyAllWindows()
     return
+
+# def statusClear():
+#     lbl6.config(text=f"recorded")
+#     # text3.delete(1.0, END)
+#     return
 
 def startMeasurenentHex():
     global chosen_port, lastOpenedPort
+    # text3.delete(1.0, END)
+    # text3.insert(INSERT, "recorded")
     chosen_port = combobox0.get()
     if chosen_port == "x":
         chosen_port = lastOpenedPort
@@ -215,6 +247,8 @@ if __name__ == '__main__':
     lbl5.grid(column=1, row=5)
     lbl5 = Label(window, text="T, Celsius")
     lbl5.grid(column=1, row=6)
+    lbl6 = Label(window, text="Status")
+    lbl6.grid(column=3, row=0)
 
     text0 = Text(width=10, height=1)
     text0.grid(column=2, row=0)
@@ -222,6 +256,8 @@ if __name__ == '__main__':
     text1.grid(column=2, row=3, sticky=W)
     text2 = Text(width=10, height=1)
     text2.grid(column=2, row=4, sticky=W)
+    # text3 = Text(width=10, height=1)        # status of ending
+    # text3.grid(column=3, row=0, sticky=W)
     # text0.pack()
 
     # btn0 = Button(window, text="Выбрать", command=selectOutputDir)
