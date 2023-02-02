@@ -98,67 +98,81 @@ def startMeasurenent():
     if ser.isOpen():
         lastOpenedPort = chosen_port
         print("port is opened")
-    data1 = []
-    data2 = []
+    dataRed = []
+    dataIR = []
+    dataT = []
+    DataLen = 18000
+    nSignals = 3
+    dt = 1
+    t = np.arange(0, (DataLen / nSignals), dt)
     # times = [time.time()] * 50
     fig = plt.figure()
-    ax1 = fig.add_subplot(211)
-    ax2 = fig.add_subplot(212)
+    ax1 = fig.add_subplot(411)
+    ax2 = fig.add_subplot(412)
+    ax3 = fig.add_subplot(413)
+    ax4 = fig.add_subplot(414)
 
     outputFile = 'C:/Users/user/Desktop/outputCSV.csv'
     f = open(outputFile, 'w', newline='')
     writer = csv.writer(f, delimiter=',')
     i=0
-    for i in range(5000):
+    for i in range(DataLen):
 
     # while True:
         i+=1
         print(i)
-        line1 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        line2 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
-        string1 = line1.decode()  # convert the byte string to a unicode string
-        string2 = line2.decode()  # convert the byte string to a unicode string
-        if(string1 == ''):
-            string1 = 0
-        if (string2 == ''):
-            string2 = 0
+        line = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        # line2 = ser.readline()[:-2]  # the last bit gets rid of the new-line chars
+        str = line.decode()  # convert the byte string to a unicode string
+        # string2 = line2.decode()  # convert the byte string to a unicode string
+        # print(str)
+        if (str == ''):
+            str = "0"
+        if(str[0] == "R"):
+           str = str[1:]
+           # print(str)
+           numRed = float(str)
+           dataRed.append(numRed)
+        elif(str[0] == "I"):
+           str = str[1:]
+           # print(str)
+           numIR = float(str)
+           dataIR.append(numIR)
+        elif(str[0] == "T"):
+           str = str[1:]
+           # print(str)
+           numT = float(str)
+           dataT.append(numT)
 
-        num1 = float(string1)
-        num2 = float(string2)
-
-        # print(num1)
-        # print(num2)
-        data1.append(num1)
-        data2.append(num2)
-        # writer.writerow([num1, num2])
-
-        # if i==10:
-        #     i=0
-        #     data1 = data1[1:] + [num1]
-        #     data2 = data2[1:] + [num2]
-        #     times = times[1:] + [time.time()]
-
-            # ax.plot(times, data2, times, data1)
-            # # ax.plot(times, data1)
-            # fig.canvas.draw()
-            # plot_img_np = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-            # plot_img_np = plot_img_np.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-            # plt.cla()
-            #
-            # cv2.imshow('Graph1', plot_img_np)
-
-
-
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
-            # ser.close()
     close_COM_port()
-    writer.writerow(data1)
-    writer.writerow(data2)
+    minLen = min(len(dataRed), len(dataIR))
+    ratio = np.divide(dataRed[:minLen], dataIR[:minLen])
+    writer.writerow(dataRed)
+    writer.writerow(dataIR)
+    writer.writerow(dataT)
+    # writer.writerow(data2)
     f.close()
     # text3.insert(INSERT, "recorded")
-    ax1.plot(data1)
-    ax2.plot(data2)
+    ax1.plot(dataRed[100:minLen])
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('Red [A.U.]')
+    ax1.grid(True)
+
+    ax2.plot(dataIR[100:minLen])
+    ax2.set_xlabel('Time')
+    ax2.set_ylabel('IR [A.U.]')
+    ax2.grid(True)
+
+    ax3.plot(ratio[100:minLen])
+    ax3.set_xlabel('Time')
+    ax3.set_ylabel('Red / IR')
+    ax3.grid(True)
+
+    ax4.plot(dataT[100:minLen])
+    ax4.set_xlabel('Time')
+    ax4.set_ylabel('T,C')
+    ax4.grid(True)
+
     # plt.plot(data1)
     plt.show()
     # plt.cla()
