@@ -102,7 +102,7 @@ def startMeasurenent():
     dataIR = []
     dataT = []
     DataLen = 18000 * 3
-    DataLen = 900 * 1
+    DataLen = 1800 * 1
     nSignals = 3
     dt = 1
     t = np.arange(0, ((DataLen / nSignals)/100), dt)
@@ -110,7 +110,7 @@ def startMeasurenent():
 
     fig = plt.figure()
     gs = fig.add_gridspec(4, hspace=0)
-    axs = gs.subplots(sharex=True, sharey=True)
+    axs = gs.subplots(sharex=True, sharey=False)
 
     # ax1 = fig.add_subplot(411)
     # ax2 = fig.add_subplot(412)
@@ -160,24 +160,47 @@ def startMeasurenent():
     f.close()
     # text3.insert(INSERT, "recorded")
     axs[0].plot(dataRed[100:minLen])
+    # axs[0].plot(dataRed)
     axs[0].set_xlabel('Time')
     axs[0].set_ylabel('Red [A.U.]')
     axs[0].grid(True)
+
+    # ax1.plot(dataRed[100:minLen])
+    # ax1.set_xlabel('Time')
+    # ax1.set_ylabel('Red [A.U.]')
+    # ax1.grid(True)
 
     axs[1].plot(dataIR[100:minLen])
     axs[1].set_xlabel('Time')
     axs[1].set_ylabel('IR [A.U.]')
     axs[1].grid(True)
 
+    # ax2.plot(dataIR[100:minLen])
+    # ax2.set_xlabel('Time')
+    # ax2.set_ylabel('IR [A.U.]')
+    # ax2.grid(True)
+
+
     axs[2].plot(ratio[100:minLen])
     axs[2].set_xlabel('Time')
     axs[2].set_ylabel('Red / IR')
     axs[2].grid(True)
 
+    # ax3.plot(ratio[100:minLen])
+    # ax3.set_xlabel('Time')
+    # ax3.set_ylabel('Red / IR')
+    # ax3.grid(True)
+
+
     axs[3].plot(dataT[100:minLen])
     axs[3].set_xlabel('Time')
     axs[3].set_ylabel('T,C')
     axs[3].grid(True)
+
+    # ax4.plot(dataT[100:minLen])
+    # ax4.set_xlabel('Time')
+    # ax4.set_ylabel('T,C')
+    # ax4.grid(True)
 
     # plt.plot(data1)
     plt.show()
