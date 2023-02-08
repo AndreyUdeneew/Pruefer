@@ -101,16 +101,22 @@ def startMeasurenent():
     dataRed = []
     dataIR = []
     dataT = []
-    DataLen = 18000
+    DataLen = 18000 * 3
+    DataLen = 900 * 1
     nSignals = 3
     dt = 1
-    t = np.arange(0, (DataLen / nSignals), dt)
+    t = np.arange(0, ((DataLen / nSignals)/100), dt)
     # times = [time.time()] * 50
+
     fig = plt.figure()
-    ax1 = fig.add_subplot(411)
-    ax2 = fig.add_subplot(412)
-    ax3 = fig.add_subplot(413)
-    ax4 = fig.add_subplot(414)
+    gs = fig.add_gridspec(4, hspace=0)
+    axs = gs.subplots(sharex=True, sharey=True)
+
+    # ax1 = fig.add_subplot(411)
+    # ax2 = fig.add_subplot(412)
+    # ax3 = fig.add_subplot(413)
+    # ax4 = fig.add_subplot(414)
+    # fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, sharex=True, hspace = 0)
 
     outputFile = 'C:/Users/user/Desktop/outputCSV.csv'
     f = open(outputFile, 'w', newline='')
@@ -153,25 +159,25 @@ def startMeasurenent():
     # writer.writerow(data2)
     f.close()
     # text3.insert(INSERT, "recorded")
-    ax1.plot(dataRed[100:minLen])
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('Red [A.U.]')
-    ax1.grid(True)
+    axs[0].plot(dataRed[100:minLen])
+    axs[0].set_xlabel('Time')
+    axs[0].set_ylabel('Red [A.U.]')
+    axs[0].grid(True)
 
-    ax2.plot(dataIR[100:minLen])
-    ax2.set_xlabel('Time')
-    ax2.set_ylabel('IR [A.U.]')
-    ax2.grid(True)
+    axs[1].plot(dataIR[100:minLen])
+    axs[1].set_xlabel('Time')
+    axs[1].set_ylabel('IR [A.U.]')
+    axs[1].grid(True)
 
-    ax3.plot(ratio[100:minLen])
-    ax3.set_xlabel('Time')
-    ax3.set_ylabel('Red / IR')
-    ax3.grid(True)
+    axs[2].plot(ratio[100:minLen])
+    axs[2].set_xlabel('Time')
+    axs[2].set_ylabel('Red / IR')
+    axs[2].grid(True)
 
-    ax4.plot(dataT[100:minLen])
-    ax4.set_xlabel('Time')
-    ax4.set_ylabel('T,C')
-    ax4.grid(True)
+    axs[3].plot(dataT[100:minLen])
+    axs[3].set_xlabel('Time')
+    axs[3].set_ylabel('T,C')
+    axs[3].grid(True)
 
     # plt.plot(data1)
     plt.show()
@@ -253,23 +259,23 @@ if __name__ == '__main__':
     lbl1.grid(column=0, row=0)
     lbl2 = Label(window, text="Начать измерение")
     lbl2.grid(column=0, row=1)
-    lbl3 = Label(window, text="Начать запись")
-    lbl3.grid(column=0, row=3)
-    lbl4 = Label(window, text="Сохранить CSV")
-    lbl4.grid(column=0, row=4)
-    lbl5 = Label(window, text="Ratio, A.U.")
-    lbl5.grid(column=1, row=5)
-    lbl5 = Label(window, text="T, Celsius")
-    lbl5.grid(column=1, row=6)
-    lbl6 = Label(window, text="Status")
-    lbl6.grid(column=3, row=0)
+    # lbl3 = Label(window, text="Начать запись")
+    # lbl3.grid(column=0, row=3)
+    # lbl4 = Label(window, text="Сохранить CSV")
+    # lbl4.grid(column=0, row=4)
+    # lbl5 = Label(window, text="Ratio, A.U.")
+    # lbl5.grid(column=1, row=5)
+    # lbl5 = Label(window, text="T, Celsius")
+    # lbl5.grid(column=1, row=6)
+    # lbl6 = Label(window, text="Status")
+    # lbl6.grid(column=3, row=0)
 
     text0 = Text(width=10, height=1)
     text0.grid(column=2, row=0)
-    text1 = Text(width=20, height=1)
-    text1.grid(column=2, row=3, sticky=W)
-    text2 = Text(width=10, height=1)
-    text2.grid(column=2, row=4, sticky=W)
+    # text1 = Text(width=20, height=1)
+    # text1.grid(column=2, row=3, sticky=W)
+    # text2 = Text(width=10, height=1)
+    # text2.grid(column=2, row=4, sticky=W)
     # text3 = Text(width=10, height=1)        # status of ending
     # text3.grid(column=3, row=0, sticky=W)
     # text0.pack()
