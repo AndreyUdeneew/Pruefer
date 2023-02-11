@@ -101,8 +101,8 @@ def startMeasurenent():
     dataRed = []
     dataIR = []
     dataT = []
-    DataLen = 18000 * 3
-    DataLen = 1800 * 1
+    DataLen = 18000 * 20
+    # DataLen = 1800
     nSignals = 3
     dt = 1
     t = np.arange(0, ((DataLen / nSignals)/100), dt)
@@ -122,6 +122,17 @@ def startMeasurenent():
     f = open(outputFile, 'w', newline='')
     writer = csv.writer(f, delimiter=',')
     i=0
+    opticalStart = 0
+    while opticalStart == 0:
+        line = ser.readline()[:-2]
+        str = line.decode()  # convert the byte string to a unicode string
+        if (str == ''):
+            str = "0"
+        print(line)
+        if(str[0] == "R"):
+            opticalStart = 1
+        elif (str[0] == "I"):
+            opticalStart = 1
     for i in range(DataLen):
 
     # while True:
@@ -135,6 +146,7 @@ def startMeasurenent():
         if (str == ''):
             str = "0"
         if(str[0] == "R"):
+
            str = str[1:]
            # print(str)
            numRed = float(str)
