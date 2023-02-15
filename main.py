@@ -8,8 +8,9 @@ from tkinter.filedialog import *
 import cv2
 import keyboard as keyboard
 import numpy as np
+import pandas as pd
 import serial
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, ticker
 import csv
 import xlwt
 from xlsxwriter import Workbook
@@ -21,6 +22,8 @@ import time
 from scipy.signal import find_peaks
 # import pyserial
 from serial.tools import list_ports
+import scipy
+# from scipy import diff
 
 comlist = list_ports.comports()
 connectedPorts = []
@@ -101,16 +104,24 @@ def startMeasurenent():
     dataRed = []
     dataIR = []
     dataT = []
-    DataLen = 18000 * 20
-    # DataLen = 1800
+    nSeconds = 1
     nSignals = 3
+    nMinutes = 20
+    frameRate = 100
+    DataLen = frameRate * nSignals * nSeconds
+    # DataLen = frameRate * nSignals * nMinutes * 60
+
     dt = 1
     t = np.arange(0, ((DataLen / nSignals)/100), dt)
     # times = [time.time()] * 50
 
-    fig = plt.figure()
-    gs = fig.add_gridspec(4, hspace=0)
-    axs = gs.subplots(sharex=True, sharey=False)
+    fig1 = plt.figure()
+    gs1 = fig1.add_gridspec(7, hspace=0)
+    axs1 = gs1.subplots(sharex=True, sharey=False)
+
+    # fig2 = plt.figure()
+    # gs2 = fig2.add_gridspec(3, hspace=0)
+    # axs2 = gs2.subplots(sharex=True, sharey=False)
 
     # ax1 = fig.add_subplot(411)
     # ax2 = fig.add_subplot(412)
@@ -164,57 +175,79 @@ def startMeasurenent():
 
     close_COM_port()
     minLen = min(len(dataRed), len(dataIR))
+
+    dx = 1
+    step = 10
     ratio = np.divide(dataRed[:minLen], dataIR[:minLen])
-    writer.writerow(dataRed)
-    writer.writerow(dataIR)
-    writer.writerow(dataT)
+    ratio_SHORT = []
+    dataRed_SHORT = []
+    dataIR_SHORT = []
+    dataT_SHORT = []
+    for i in range(0, minLen, step):
+        dataRed_SHORT.append(dataRed[i])
+        dataIR_SHORT.append(dataIR[i])
+        dataT_SHORT.append(dataT[i])
+        ratio_SHORT.append(ratio[i])
+
+    dataRed_Diff = np.diff(dataRed_SHORT)/dx
+    dataIR_Diff = np.diff(dataIR_SHORT)/dx
+    dataT_Diff = np.diff(dataT_SHORT)/dx
+
+    # dataRed_Diff = np.gradient(dataRed, dx)
+    # dataIR_Diff = np.gradient(dataIR, dx)
+    # dataT_Diff = np.gradient(dataT, dx*1000)
+
+
+    # writer.writerow(dataRed)[0]
+    # writer.writerow(dataIR)[0]
+    # writer.writerow(dataT)[0]
     # writer.writerow(data2)
     f.close()
-    # text3.insert(INSERT, "recorded")
-    axs[0].plot(dataRed[100:minLen])
-    # axs[0].plot(dataRed)
-    axs[0].set_xlabel('Time')
-    axs[0].set_ylabel('Red [A.U.]')
-    axs[0].grid(True)
 
-    # ax1.plot(dataRed[100:minLen])
-    # ax1.set_xlabel('Time')
-    # ax1.set_ylabel('Red [A.U.]')
-    # ax1.grid(True)
+    locator = ticker.LinearLocator(5)
 
-    axs[1].plot(dataIR[100:minLen])
-    axs[1].set_xlabel('Time')
-    axs[1].set_ylabel('IR [A.U.]')
-    axs[1].grid(True)
+    axs1[0].plot(dataRed_SHORT, color = 'r')
+    axs1[0].xaxis.set_major_locator(locator)
+    axs1[0].set_xlabel('Time')
+    axs1[0].set_ylabel('Red [A.U.]')
+    axs1[0].grid(True)
 
-    # ax2.plot(dataIR[100:minLen])
-    # ax2.set_xlabel('Time')
-    # ax2.set_ylabel('IR [A.U.]')
-    # ax2.grid(True)
+    axs1[1].plot(dataIR_SHORT, color = 'b')
+    axs1[1].xaxis.set_major_locator(locator)
+    axs1[1].set_xlabel('Time')
+    axs1[1].set_ylabel('IR [A.U.]')
+    axs1[1].grid(True)
 
+    axs1[2].plot(ratio_SHORT, color = 'g')
+    axs1[2].xaxis.set_major_locator(locator)
+    axs1[2].set_xlabel('Time')
+    axs1[2].set_ylabel('Red / IR')
+    axs1[2].grid(True)
 
-    axs[2].plot(ratio[100:minLen])
-    axs[2].set_xlabel('Time')
-    axs[2].set_ylabel('Red / IR')
-    axs[2].grid(True)
+    axs1[3].plot(dataT_SHORT, color = 'r')
+    axs1[3].xaxis.set_major_locator(locator)
+    axs1[3].set_xlabel('Time')
+    axs1[3].set_ylabel('T,C')
+    axs1[3].grid(True)
 
-    # ax3.plot(ratio[100:minLen])
-    # ax3.set_xlabel('Time')
-    # ax3.set_ylabel('Red / IR')
-    # ax3.grid(True)
+    axs1[4].plot(dataRed_Diff, color = 'r')
+    axs1[4].xaxis.set_major_locator(locator)
+    axs1[4].set_xlabel('Time')
+    axs1[4].set_ylabel('dRed/dt [A.U.]')
+    axs1[4].grid(True)
 
+    axs1[5].plot(dataIR_Diff, color = 'b')
+    axs1[5].xaxis.set_major_locator(locator)
+    axs1[5].set_xlabel('Time')
+    axs1[5].set_ylabel('dIR/dt [A.U.]')
+    axs1[5].grid(True)
 
-    axs[3].plot(dataT[100:minLen])
-    axs[3].set_xlabel('Time')
-    axs[3].set_ylabel('T,C')
-    axs[3].grid(True)
+    axs1[6].plot(dataT_Diff, color = 'r')
+    axs1[6].xaxis.set_major_locator(locator)
+    axs1[6].set_xlabel('Time')
+    axs1[6].set_ylabel('dT/dt')
+    axs1[6].grid(True)
 
-    # ax4.plot(dataT[100:minLen])
-    # ax4.set_xlabel('Time')
-    # ax4.set_ylabel('T,C')
-    # ax4.grid(True)
-
-    # plt.plot(data1)
     plt.show()
     # plt.cla()
     # plt.show(data1)
