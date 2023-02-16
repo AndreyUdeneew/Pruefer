@@ -108,20 +108,20 @@ def startMeasurenent():
     nSignals = 3
     nMinutes = 20
     frameRate = 100
-    DataLen = frameRate * nSignals * nSeconds
-    # DataLen = frameRate * nSignals * nMinutes * 60
+    # DataLen = frameRate * nSignals * nSeconds
+    DataLen = frameRate * nSignals * nMinutes * 60
 
     dt = 1
     t = np.arange(0, ((DataLen / nSignals)/100), dt)
     # times = [time.time()] * 50
 
     fig1 = plt.figure()
-    gs1 = fig1.add_gridspec(7, hspace=0)
+    gs1 = fig1.add_gridspec(8, hspace=0)
     axs1 = gs1.subplots(sharex=True, sharey=False)
 
-    # fig2 = plt.figure()
-    # gs2 = fig2.add_gridspec(3, hspace=0)
-    # axs2 = gs2.subplots(sharex=True, sharey=False)
+    fig2 = plt.figure()
+    gs2 = fig2.add_gridspec(3, hspace=0)
+    axs2 = gs2.subplots(sharex=True, sharey=False)
 
     # ax1 = fig.add_subplot(411)
     # ax2 = fig.add_subplot(412)
@@ -177,7 +177,7 @@ def startMeasurenent():
     minLen = min(len(dataRed), len(dataIR))
 
     dx = 1
-    step = 10
+    step = 400
     ratio = np.divide(dataRed[:minLen], dataIR[:minLen])
     ratio_SHORT = []
     dataRed_SHORT = []
@@ -192,6 +192,7 @@ def startMeasurenent():
     dataRed_Diff = np.diff(dataRed_SHORT)/dx
     dataIR_Diff = np.diff(dataIR_SHORT)/dx
     dataT_Diff = np.diff(dataT_SHORT)/dx
+    dataRatio_Diff = np.diff(ratio_SHORT) / dx
 
     # dataRed_Diff = np.gradient(dataRed, dx)
     # dataIR_Diff = np.gradient(dataIR, dx)
@@ -204,49 +205,55 @@ def startMeasurenent():
     # writer.writerow(data2)
     f.close()
 
-    locator = ticker.LinearLocator(5)
+    locator = ticker.LinearLocator(20)
 
-    axs1[0].plot(dataRed_SHORT, color = 'r')
+    axs1[0].plot(dataRed_SHORT[2:], color = 'r')
     axs1[0].xaxis.set_major_locator(locator)
     axs1[0].set_xlabel('Time')
     axs1[0].set_ylabel('Red [A.U.]')
     axs1[0].grid(True)
 
-    axs1[1].plot(dataIR_SHORT, color = 'b')
+    axs1[1].plot(dataIR_SHORT[2:], color = 'b')
     axs1[1].xaxis.set_major_locator(locator)
     axs1[1].set_xlabel('Time')
     axs1[1].set_ylabel('IR [A.U.]')
     axs1[1].grid(True)
 
-    axs1[2].plot(ratio_SHORT, color = 'g')
+    axs1[2].plot(ratio_SHORT[2:], color = 'g')
     axs1[2].xaxis.set_major_locator(locator)
     axs1[2].set_xlabel('Time')
     axs1[2].set_ylabel('Red / IR')
     axs1[2].grid(True)
 
-    axs1[3].plot(dataT_SHORT, color = 'r')
+    axs1[3].plot(dataT_SHORT[2:], color = 'orange')
     axs1[3].xaxis.set_major_locator(locator)
     axs1[3].set_xlabel('Time')
     axs1[3].set_ylabel('T,C')
     axs1[3].grid(True)
 
-    axs1[4].plot(dataRed_Diff, color = 'r')
+    axs1[4].plot(dataRed_Diff[2:], color = 'r')
     axs1[4].xaxis.set_major_locator(locator)
     axs1[4].set_xlabel('Time')
     axs1[4].set_ylabel('dRed/dt [A.U.]')
     axs1[4].grid(True)
 
-    axs1[5].plot(dataIR_Diff, color = 'b')
+    axs1[5].plot(dataIR_Diff[2:], color = 'b')
     axs1[5].xaxis.set_major_locator(locator)
     axs1[5].set_xlabel('Time')
     axs1[5].set_ylabel('dIR/dt [A.U.]')
     axs1[5].grid(True)
 
-    axs1[6].plot(dataT_Diff, color = 'r')
+    axs1[6].plot(dataT_Diff[2:], color = 'orange')
     axs1[6].xaxis.set_major_locator(locator)
     axs1[6].set_xlabel('Time')
     axs1[6].set_ylabel('dT/dt')
     axs1[6].grid(True)
+
+    axs1[7].plot(dataRatio_Diff[2:], color = 'g')
+    axs1[7].xaxis.set_major_locator(locator)
+    axs1[7].set_xlabel('Time')
+    axs1[7].set_ylabel('dRatio/dt')
+    axs1[7].grid(True)
 
     plt.show()
     # plt.cla()
