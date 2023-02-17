@@ -120,7 +120,7 @@ def startMeasurenent():
     axs1 = gs1.subplots(sharex=True, sharey=False)
 
     fig2 = plt.figure()
-    gs2 = fig2.add_gridspec(3, hspace=0)
+    gs2 = fig2.add_gridspec(4, hspace=0)
     axs2 = gs2.subplots(sharex=True, sharey=False)
 
     # ax1 = fig.add_subplot(411)
@@ -254,6 +254,30 @@ def startMeasurenent():
     axs1[7].set_xlabel('Time')
     axs1[7].set_ylabel('dRatio/dt')
     axs1[7].grid(True)
+
+    axs2[0].plot(dataRed[100:minLen], color = 'r')
+    axs2[0].xaxis.set_major_locator(locator)
+    axs2[0].set_xlabel('Time')
+    axs2[0].set_ylabel('Red [A.U.]')
+    axs2[0].grid(True)
+
+    axs2[1].plot(dataIR[100:minLen], color = 'b')
+    axs2[1].xaxis.set_major_locator(locator)
+    axs2[1].set_xlabel('Time')
+    axs2[1].set_ylabel('IR [A.U.]')
+    axs2[1].grid(True)
+
+    axs2[2].plot(ratio[100:minLen], color = 'g')
+    axs2[2].xaxis.set_major_locator(locator)
+    axs2[2].set_xlabel('Time')
+    axs2[2].set_ylabel('Red / IR')
+    axs2[2].grid(True)
+
+    axs2[3].plot(dataT[100:minLen], color = 'orange')
+    axs2[3].xaxis.set_major_locator(locator)
+    axs2[3].set_xlabel('Time')
+    axs2[3].set_ylabel('T,C')
+    axs2[3].grid(True)
 
     plt.show()
     # plt.cla()
